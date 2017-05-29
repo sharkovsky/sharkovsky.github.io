@@ -40,7 +40,12 @@ how I demystified the process and explain it to myself.
 ![Regress](images/regression.jpg)
 
 Assumption: f is **linear**, i.e.
+
+---
+
 $$ y = Wx $$
+
+---
 
 Mathematical recipe:
 1. assemble *all* the observations in a **design matrix** X;
