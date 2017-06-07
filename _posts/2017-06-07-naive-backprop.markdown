@@ -15,12 +15,12 @@ I like to think of myself as a funny guy, so I usually tell the joke:
 
 > Backpropagation is merely a rebranding of the chain rule. Yes, I find it quite..... derivative.
 
-if you haven't fallen off your chair, let me restate what pretty much everybody says about backprop: *"in neural networks, the error is associated with the gradient of the gradient of the cost function. Thanks to the backpropagation algorithm, we have a fast and efficient way of computing the gradient w.r.t every parameter of the model."*
+if you haven't fallen off your chair, let me restate what pretty much everybody says about backprop: *"in neural networks, the error is associated with the gradient of the cost function. Thanks to the backpropagation algorithm, we have a fast and efficient way of computing this gradient w.r.t every parameter of the model."*
 
 #### Why gradients?
 
-This might seem like a pretty silly question, but it still required me some thinking: *why exactly do we use gradients as an error signal?*
+This might seem like a pretty silly question, but it still required me some thinking: *why exactly do we use the gradient as an error signal?*
 
 There are obviously some intuitive explanations for this: as a first approximation, a small change in a parameter corresponds to a change in the output that is proportional to the gradient w.r.t. that parameter.
-However, I felt more satisfied when I realized that using gradients as an error signal is a consequence of the **arbitrary** decision of using Gradient Descent as an optimization algorithm.
-If we were to use different methods (e.g. Newton's) we would be computing more than just gradients 
+However, the moment of truth that finally put my mind at ease was the realization that using gradients as an error signal is only a consequence of the **arbitrary** decision of using Gradient Descent as an optimization algorithm.
+If we were to use different methods (e.g. Newton's) we would be computing more than just gradients (see e.g. section 8.6 of the [deep learning book](http://www.deeplearningbook.org/)).
