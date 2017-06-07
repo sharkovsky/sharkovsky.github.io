@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "A naive derivatio of backprop"
+title:  "A naive derivation of backprop"
 date:   2017-06-07 13:53:10 +0200
 ---
 
