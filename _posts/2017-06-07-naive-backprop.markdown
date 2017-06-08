@@ -210,7 +210,9 @@ $$ W_l \leftarrow W_l - \eta \left ( \mathbf { \delta } \odot \frac{ d \sigma }{
 $$ \mathbf { \delta } = W_l^T \left ( \mathbf { \delta } \odot \frac{ d \sigma }{dz} \Bigg|_{\mathbf{z}_{l}} \right ) $$.
 
 
+### Show me the code!
 
+A simple implementation that pretty much follows the notation from this blog post is given in:
 
 
 
