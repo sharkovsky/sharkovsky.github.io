@@ -34,8 +34,17 @@ Consider the following simple example.
 
 ![simple-network]({{ site.url }}/assets/simple-network.png)
 
-To compute $y$, we have the following relation:
+To compute $$ y $$, we have the following relation:
 
-$$ y = \sigma(z) = \sigma( w_2 h_1 ) $$
-$$   = \sigma( w_2 \sigma( w_1 x ) ) $$
+$$ y = \sigma(z) = \sigma( w_2 h_1 ) = \sigma( w_2 \sigma( w_1 x ) ) $$
 
+Suppose we want to compute $$ \frac{dy}{dw_1} $$, applying the chain rule we get:
+
+$$
+   \begin{align*}
+   \frac{dy}{dw_1} & = \frac{d \sigma(z) }{dz} \frac{ dz }{dw_1 } \\
+                   & = \frac{d \sigma(z) }{dz} \frac{ dz }{h_1} \frac{dh_1}{dw_1}
+   \end{align*}
+$$
+
+What we wrote so far is 
