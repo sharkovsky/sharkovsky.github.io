@@ -30,6 +30,6 @@ If we were to use different methods (e.g. Newton's) we would be computing more t
 Another silly question, but I needed to explain this to myself.
 Why do we go *backwards* in the backprop algorithm?
 
-![simple net]({{ site.url }}/_img/simple-network.png)
+![simple-network]({{ site.url }}/assets/simple-network.png)
 
 
