@@ -30,6 +30,12 @@ If we were to use different methods (e.g. Newton's) we would be computing more t
 Another silly question, but I needed to explain this to myself.
 Why do we go *backwards* in the backprop algorithm?
 
+Consider the following simple example.
+
 ![simple-network]({{ site.url }}/assets/simple-network.png)
 
+To compute $y$, we have the following relation:
+
+$$ y = \sigma(z) = \sigma( w_2 h_1 ) $$
+$$   = \sigma( w_2 \sigma( w_1 x ) ) $$
 
