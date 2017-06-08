@@ -212,7 +212,7 @@ $$ \mathbf { \delta } = W_l^T \left ( \mathbf { \delta } \odot \frac{ d \sigma }
 
 ### Show me the code!
 
-A simple implementation that pretty much follows the notation from this blog post is given in:
+A simple implementation that pretty much follows the notation from this blog post is [here](https://github.com/sharkovsky/sharkovsky.github.io/blob/master/code/FullyConnected-py3.ipynb).
 
 
 
