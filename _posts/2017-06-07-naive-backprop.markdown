@@ -100,6 +100,8 @@ Because the devil is in the details, let's set some dimensions!
 
 $$ \mathbf{x} \in \mathbb{R}^{N_{in}},~~~ \mathbf{h}_1 \in \mathbb{R}^{N_1},~~~ \mathbf{h}_2 = \mathbf{y} \in \mathbb{R}^{N_2} .$$
 
+Let me state this clearly here, *all vectors here are __column vectors__*.
+
 To compute the feedforward part of the neural network, just apply the simple recipe:
 
 $$
@@ -202,9 +204,9 @@ We are left with the following **backprop algorithm**:
 2. set the *error signal*
 $$ \mathbf{ \delta } = \nabla C \Bigg|_{\mathbf{y}} $$
 3. for each layer $$ l $$ going backwards:
-  1. update the weight matrix
-$$ W_l -= \eta \left ( \mathbf { \delta } \odot \frac{ d \sigma }{dz} \Bigg|_{\mathbf{z}_{l}} \right ) $$;
-  2. update the error signal
+  - update the weight matrix
+$$ W_l \leftarrow W_l - \eta \left ( \mathbf { \delta } \odot \frac{ d \sigma }{dz} \Bigg|_{\mathbf{z}_{l}} \right ) \otimes \mathbf{h}_{l-1}$$;
+  - backpropagate the error signal
 $$ \mathbf { \delta } = W_l^T \left ( \mathbf { \delta } \odot \frac{ d \sigma }{dz} \Bigg|_{\mathbf{z}_{l}} \right ) $$.
 
 
