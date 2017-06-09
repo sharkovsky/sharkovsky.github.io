@@ -6,7 +6,16 @@ date:   2017-06-07 13:53:10 +0200
 
 I got lost trying to implement some simple neural networks from scratch in python.
 In particular, I figured out that I didn't really understant how backpropagation works and what is the magic behind it.
-I decide to inaugurate a blog with my thoughts on backpropagation.
+I decided to inaugurate a blog with my thoughts on backpropagation.
+
+Now, there are *many* other explanations of backprop out there, much better than mine.
+Chapter 2 of M. Nielsen's [book](http://neuralnetworksanddeeplearning.com/chap2.html) is where I learned all this stuff in the beginning.
+I then went to the [deep learning book](http://www.deeplearningbook.org/) by Ian Goodfellow, Yoshua Bengio, and Aaron Courville for a deeper but less gentle explanation.
+Finally, C. Olah's [blog](http://colah.github.io/posts/2015-08-Backprop/), A. Karpahty's [articles](https://medium.com/@karpathy/yes-you-should-understand-backprop-e2f06eab496b) and S. Raval's hilarious [videos](https://www.youtube.com/watch?v=q555kfIFUCM) all allowed me to get more and more comfortable with different aspects of this problem.
+
+The purpose of this blog post is two fold: first of all, several of the resources above encourage the readers to *do the math*.
+This is my attempt at detailing some mathematical expressions, and in turn I encourage everyone to check their calculations against mine and point out any errors/inconsistencies.
+Second of all, I wanted to get comfortable with the idea of having a blog, and thought this would be a good starting point.
 
 ### The handwaving backprop explanation
 
