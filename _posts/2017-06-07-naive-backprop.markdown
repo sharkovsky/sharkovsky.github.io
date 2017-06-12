@@ -43,8 +43,8 @@ Suppose we want to compute $$ \frac{dy}{dw_1} $$ and $$ \frac{dy}{dw_2} $$, appl
 $$
    \begin{align*}
    \frac{dy}{dw_1} & = \frac{d \sigma(z_2) }{dz_2} \frac{ dz_2 }{dw_1 } \\
-                   & = \frac{d \sigma(z_2) }{dz_2} \frac{ dz_2 }{h_1} \frac{dh_1}{dw_1} \\
-                   & = \frac{d \sigma(z_2) }{dz_2} \frac{ dz_2 }{h_1} \frac{dh_1}{dz_1} \frac{dz_1}{dw_1} \\
+                   & = \frac{d \sigma(z_2) }{dz_2} \frac{ dz_2 }{dh_1} \frac{dh_1}{dw_1} \\
+                   & = \frac{d \sigma(z_2) }{dz_2} \frac{ dz_2 }{dh_1} \frac{dh_1}{dz_1} \frac{dz_1}{dw_1} \\
                    & = \frac{d \sigma(z_2) }{dz_2} w_2 \frac{dh_1}{dz_1} x, \\
    \frac{dy}{dw_2} & = \frac{d \sigma(z_2) }{dz_2} \frac{ dz_2 }{dw_2} \\
                    & = \frac{d \sigma(z_2) }{dz_2} h_1.
