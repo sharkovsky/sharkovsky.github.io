@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "A naive explanation of backprop for recurrent neural networks"
+title:  "A naive explanation of backprop through time for recurrent neural networks"
 date:   2017-06-12 13:53:10 +0200
 ---
 
@@ -9,14 +9,23 @@ In the second blog post of this series, I would like to repeat the same detailed
 As I mentioned before there are *many* other explanations of backprop out there, much better than mine.
 In addition to [M. Nielsen's book](http://neuralnetworksanddeeplearning.com/chap2.html) and the [deep learning book](http://www.deeplearningbook.org/), I'd like to mention a few other blogs that helped me understand things specifically in the case of recurrent networks.
 A. Karpathy's [unreasonable effectiveness of recurrent neural networks](http://karpathy.github.io/2015/05/21/rnn-effectiveness/) is one of the most exciting resources on RNNs out there.
-G. Chen's [arXiv paper](https://arxiv.org/pdf/1610.02583) is a nice, academic style, introduction to the topic while H. Jaeger's [tutorial](http://minds.jacobs-university.de/sites/default/files/uploads/papers/ESNTutorialRev.pdf) is a very complete explanation of the problem.
+G. Chen's [arXiv paper](https://arxiv.org/pdf/1610.02583) is a nice, academic style, introduction to the topic while H. Jaeger's [tutorial](http://minds.jacobs-university.de/sites/default/files/uploads/papers/ESNTutorialRev.pdf) is a *very complete* presentation.
 Finally, I took the idea for the training set from P. Roelants' [blog post](http://peterroelants.github.io/posts/rnn_implementation_part01/).
 
-### handwaving explanation of recurrent neural networks
+### What is a recurrent neural network?
 
 Recurrent Neural Networks (RNN) are special networks in which the concept of time is explicitly modeled.
 Originally, they were developed to deal with input data in the form of sequences, where each *timestep* corresponds to the processing of one element of the input sequence.
+The main difference with feedforward networks is that:
 
+> in RNNs, each neuron is characterized by a state (a variable) whose value can change according to some rules, but whose presence is persistent through time.
+
+In practice this means that we need an uglier notation to represent neurons, as shown in this table:
+
+| Network Type | Notation | Description |
+| ------------ | -------- | ----------- |
+| feedforward  | $ \mathbf{h}^l_i $ | hidden state of the $i^{th}$ neuron in the $l^{th}$ layer |
+| recurrent    | $\mathbf{h}^l_{n,i} $ | hidden state of the $i^{th}$ neuron in the $l^{th}$ layer *at timestep $n$ * |
 
 
 
