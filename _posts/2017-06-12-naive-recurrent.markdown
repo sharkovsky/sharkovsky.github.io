@@ -59,7 +59,7 @@ Now compare this to the image of a recurrent neural network, which has both a sp
 
 In the image, the same neural network from before is now *repeated* through time, in the sense that the state of each neuron is is computed ad each timestep.
 The highlighted neuron from the previous image now not only sends connections to the next layer, but also *sends connections within the same layer, to the next timestep*.
-This image would have been a mess had I drawn every single recurrent connection, so as an example I only drew all the recurrent connections of layer $$L-1$$ from timestep $$N$$ to $$N+1$$.
+This image would have been a mess had I drawn every single recurrent connection, so as an example I concentrated on the red neuron and drew all the incoming connections (from the previous layer at the same timestep, and from the same layer at the previous timestep) and all the outgoing connections (to the next layer at the same timestep, and to the same layer at the next timestep).
 With your third eye, try to imagine that every recurrent layer sends connections both to its downstream layer in space, and to itself at the next timestep.
 
 In terms of notation, we need to distinguish between the weight matrix of recurrent connections, and the weight matrix of feedforward connections.
