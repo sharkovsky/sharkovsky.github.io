@@ -9,10 +9,10 @@ In the second blog post of this series, I would like to repeat the same detailed
 As I mentioned before there are *many* other explanations of backprop out there, much better than mine.
 In addition to [M. Nielsen's book](http://neuralnetworksanddeeplearning.com/chap2.html) and the [deep learning book](http://www.deeplearningbook.org/), I'd like to mention a few other blogs that helped me understand things specifically in the case of recurrent networks.
 A. Karpathy's [unreasonable effectiveness of recurrent neural networks](http://karpathy.github.io/2015/05/21/rnn-effectiveness/) is one of the most exciting resources on RNNs out there.
-G. Chen's [arXiv paper](https://arxiv.org/pdf/1610.02583) is a nice, academic style, introduction to the topic while H. Jaeger's [tutorial](http://minds.jacobs-university.de/sites/default/files/uploads/papers/ESNTutorialRev.pdf) is a *very complete* presentation.
+Chen's [arXiv paper](https://arxiv.org/pdf/1610.02583) is a nice, academic style, introduction to the topic, Lipton's [review paper](https://arxiv.org/pdf/1506.00019.pdf) gives a nice overview of the challenges related to training recurrent networks, while H. Jaeger's [tutorial](http://minds.jacobs-university.de/sites/default/files/uploads/papers/ESNTutorialRev.pdf) is a *mathematically intense but complete* presentation which then moves on to talk about reservoir computing.
 Finally, I took the idea for the training set from P. Roelants' [blog post](http://peterroelants.github.io/posts/rnn_implementation_part01/).
 
-### What is a recurrent neural network?
+## What is a recurrent neural network?
 
 Recurrent Neural Networks (RNN) are special networks in which the concept of time is explicitly modeled.
 Originally, they were developed to deal with input data in the form of sequences, where each *timestep* corresponds to the processing of one element of the input sequence.
@@ -23,226 +23,298 @@ The main difference with feedforward networks is that:
 In practice this means that we need an uglier notation to represent neurons, as shown in this table:
 
 | Network Type | Notation | Description |
-| ------------ | -------- | ----------- |
-| feedforward  | $ \mathbf{h}^l_i $ | hidden state of the $i^{th}$ neuron in the $l^{th}$ layer |
-| recurrent    | $\mathbf{h}^l_{n,i} $ | hidden state of the $i^{th}$ neuron in the $l^{th}$ layer *at timestep $n$ * |
+| ------------ | :------: | ----------- |
+| feedforward  | $$ h^l_i $$ | hidden state of the $$ i^{th} $$ neuron in the $$ l^{th} $$ layer |
+| feedforward  | $$ \mathbf{h}^l $$ | hidden state of the vector of neurons in the $$ l^{th} $$ layer |
+| recurrent    | $$ h^l_{n,i} $$ | hidden state of the $$ i^{th} $$ neuron in the $$ l^{th} $$ layer *at timestep* $$n $$ |
+| recurrent    | $$ \mathbf{h}^l_n $$ | hidden state of the vector of neurons in the $$ l^{th} $$ layer *at timestep* $$n $$ |
 
 
+Typically we represent RNNs like this:
+
+![rnn-net]({{ site.url }}/assets/recurrent-net.svg)
+
+If you compare this to the representation of a [feedforward network](../07/naive-backprop.html) you'll notice the *recurrent* arrows connecting a neuron to itself.
+These arrows can be misleading because one may be tempted to think that a neuron's state is immediately affected by the recurrent connections.
+Instead, what happens is that
+
+> recurrent connections affect the state of a neuron through some delay (typically, a single timestep).
+
+#### The layer-wise point of view
+
+As we saw in the post on [feedforward networks](../07/naive-backprop.html), it is often useful to take the layer-wise point of view by considering the full vector of neurons in each layer.
+First, consider the visualization of a feedforward network which I have stretched out using my mad graphic skillz in order to give the 3D impression.
+Here, I am going to use a nomenclature that no-one else uses, but I promise it's only for a minor thing: I am going to refer to the different layers of a network as the *space dimension* of the network.
+The reason behind this is simply to contrast it to the *time dimension* of recurrent neural networks (a nomenclature that everybody likes).
+
+![feedforward-3D]({{ site.url }}/assets/feedforwards-layers.svg)
+
+In the image, each ball is a neuron and each rectangle is a layer.
+I have drawn all the connections, but only higlighted those originating from a specific neuron.
+Keep an eye on that neuron for later.
+
+Now compare this to the image of a recurrent neural network, which has both a space and a time dimension.
+
+![recurrent-3D]({{ site.url }}/assets/recurrent-layers.svg)
+
+In the image, the same neural network from before is now *repeated* through time, in the sense that the state of each neuron is is computed ad each timestep.
+The highlighted neuron from the previous image now not only sends connections to the next layer, but also *sends connections within the same layer, to the next timestep*.
+This image would have been a mess had I drawn every single recurrent connection, so as an example I only drew all the recurrent connections of layer $$L-1$$ from timestep $$N$$ to $$N+1$$.
+With your third eye, try to imagine that every recurrent layer sends connections both to its downstream layer in space, and to itself at the next timestep.
+
+In terms of notation, we need to distinguish between the weight matrix of recurrent connections, and the weight matrix of feedforward connections.
+I am going to use a notation that is nonstandard, so let me apologize now.
+Sorry.
+I am going to denote the weight matrix of recurrent connections with an $$T$$ left-subscript.
+The $$T$$ stands for the time dimension.
+Similary, the feedforward weight matrix will be denoted with an $$S$$ left-subscript, where $$S$$ stands for (you guessed it) space.
+See how I niftly combined all the nonstandard notations in one mess?
+Here is a summary for you:
+
+| Weights | Notation | Alternative Notations |
+| ------------ | :------: | ----------- |
+| feedforward from layer $$ l-1 $$ to layer $$ l $$| $$ {}_SW^l $$ | $$ W^l, W^l_{xh} $$ |
+| recurrent layer $$ l $$| $$ {}_TW^l $$ | $$ W^l_hh $$ |
 
 
-The purpose of this blog post is two fold: first of all, several of the resources above encourage the readers to *do the math*.
-This is my attempt at detailing some mathematical expressions, and in turn I encourage everyone to check their calculations against mine and point out any errors/inconsistencies.
-Second of all, I wanted to get comfortable with the idea of having a blog, and thought this would be a good starting point.
+Obviously, it is possible to mix non-recurrent and recurrent layers, and in this case only the recurrent layers would behave as I have been describing so far.
+Also, it is possible to prescribe recurrent layers that do not connect to the future selves, but connect to future other layers.
 
-### The handwaving backprop explanation
+#### Formulas are not just for babies
 
-Everyone is talking about it, and everyone has their own, two-sentence explanation that they casually drop in conversation when they want to look cool at a conference.
-I like to think of myself as a funny guy, so I usually tell the joke:
-
-> Backpropagation is merely a rebranding of the chain rule. Yes, I find it quite..... derivative.
-
-if you haven't fallen off your chair, let me restate what pretty much everybody says about backprop: *"in neural networks, the error is associated with the gradient of the cost function. Thanks to the backpropagation algorithm, we have a fast and efficient way of computing this gradient w.r.t every parameter of the model."*
-
-#### Why **Back**prop?
-
-*Why do we go **backwards** in the backprop algorithm?*
-
-Consider the following simple example.
-
-![simple-network]({{ site.url }}/assets/simple-network.png)
-
-To compute $$ y $$, we have the following relation:
-
-$$ y = \sigma(z) = \sigma( w_2 h_1 ) = \sigma( w_2 \sigma( w_1 x ) ). $$
-
-Suppose we want to compute $$ \frac{dy}{dw_1} $$ and $$ \frac{dy}{dw_2} $$, applying the chain rule we get:
-
-$$
-   \begin{align*}
-   \frac{dy}{dw_1} & = \frac{d \sigma(z_2) }{dz_2} \frac{ dz_2 }{dw_1 } \\
-                   & = \frac{d \sigma(z_2) }{dz_2} \frac{ dz_2 }{dh_1} \frac{dh_1}{dw_1} \\
-                   & = \frac{d \sigma(z_2) }{dz_2} \frac{ dz_2 }{dh_1} \frac{dh_1}{dz_1} \frac{dz_1}{dw_1} \\
-                   & = \frac{d \sigma(z_2) }{dz_2} w_2 \frac{dh_1}{dz_1} x, \\
-   \frac{dy}{dw_2} & = \frac{d \sigma(z_2) }{dz_2} \frac{ dz_2 }{dw_2} \\
-                   & = \frac{d \sigma(z_2) }{dz_2} h_1.
-   \end{align*}
-$$
-
-All these formulas look complicated, yet simple enough for our high-school selves to understand them.
-Isn't that wonderful!
-
-The trick in **back**propagation is noticing that the term $$ \frac{d \sigma(z_2) }{dz_2} $$ appears several times.
-First, we need it to compute $$ \frac{dy}{dw_2} $$.
-Then, we *back-propagate* it via $$ \frac{d \sigma(z_2) }{dz_2} w_2 $$ because we also need it to compute $$ \frac{dy}{dw_1} $$.
-
-> The idea is that each layer has the necessary information to compute this *error signal*, and can pass it backwards to the previous layers which needs it to compute its own derivative (and its own error signals to pass on, if it has previous layers).
-
-#### Cost function
-
-In the previous example, we wanted to compute the derivative of $$ y $$.
-The question arises naturally, $$y$$ do you want that? (ah ah).
-
-Well, ideally you have a *goal* in mind for your network, some sort of cognitive function that you wish it would emulate(e.g. learning to classify handwritten digits from an image).
-So how do you translate this into some beautiful math that your NN can digest?
-You postulate the existence of a *cost function* $$ C $$.
-The purpose of a cost function is, in the words of Dr. Evil, to *throw us a friggin' bone*.
-In this simplified point of view, a cost function is a way to massage the neural network's output in something that is:
-- scalar;
-- differentiable;
-- related to the error in the cognitive function you want to emulate.
-
-So what's the relationship with learning?
-The idea is that you are going to tweak and adjust the weights in your network (and generally jump through several hoops) in order to ensure that your neural network does one thing really well: **minimize its cost function**.
-
-The way you'll do this is by computing error signals in the form of gradients, and updating network weights accordingly.
-Therefore you would change the formulas above to compute:
+If you think a formula can be more expressive than a thousand words, here is the algorithm to perform **inference** on a recurrent layer $$l$$
 
 $$
-   \begin{align*}
-   \frac{dC}{dw_1} & =\frac{dC}{dy} \frac{dy}{dw_1}, \\
-   \frac{dC}{dw_2} & =\frac{dC}{dy} \frac{dy}{dw_2}.
-   \end{align*}
+    \begin{align*}
+    &\text{for every timestep } n\\
+    &\mathbf{z}^l_n = {}_SW^l\mathbf{h}^{l-1}_n + {}_TW^l\mathbf{h}^l_{n-1} \\
+    &\mathbf{h}^l_n = \sigma ( \mathbf{z}^l_n )
+    \end{align*}
 $$
 
-#### Why gradients?
+## BPTT: Backpropagation Through Time
 
-This might seem like a pretty silly question, but it still required me some thinking: *why exactly do we use the gradient as an error signal?*
+How do we apply the principles of backpropagation in a recurrent neural network?
+The principle is the same as for a feedforward network, and indeed many sources claim that *training recurrent networks is just like training feedforward networks with unrolling.*
+I found this statement quite obscure, and preferred writing out the formulas explicitly.
 
-There are obviously some intuitive explanations for this: as a first approximation, a small change in a parameter corresponds to a change in the output that is proportional to the gradient w.r.t. that parameter.
-However, the moment of truth that finally put my mind at ease was the realization that using gradients as an error signal is only a consequence of the **arbitrary** decision of using Gradient Descent as an optimization algorithm.
-If we were to use different methods (e.g. Newton's) we would be computing more than just gradients (see e.g. section 8.6 of the [deep learning book](http://www.deeplearningbook.org/)).
+#### Simple example
 
-A gentle reminder, the update formula for gradient descent is
+As we did for feedforward nets, let's start by considering the very simple example of a scalar network.
 
-$$ w_1 \leftarrow w_1 - \eta \frac{dC}{dw_1} $$.
+![rnn-net]({{ site.url }}/assets/recurrent-net.svg)
 
-We call $$\eta$$ the *learning rate*, a parameter that can have a major effect on convergence.
+In this uber-simple network, the output $$ y $$ is simply the hidden state of the neuron in the last layer.
 
-#### Scary math in the form of vectors
-
-Let's take a leap of imagination here and imagine that in the network from the previous example there was at each layer a vector of neurons instead of single ones.
-I know I'm familiar with this concept, since I applied the same technique at age 14 so I could tell mom I had friends and a girlfriend.
-Because the devil is in the details, let's set some dimensions!
-
-$$ \mathbf{x} \in \mathbb{R}^{N_{in}},~~~ \mathbf{h}_1 \in \mathbb{R}^{N_1},~~~ \mathbf{h}_2 = \mathbf{y} \in \mathbb{R}^{N_2} .$$
-
-Let me state this clearly here, *all vectors here are __column vectors__*.
-
-To compute the feedforward part of the neural network, just apply the simple recipe:
+Everyone has to start somewhere, so suppose we initialize the hidden states with some arbitrary initial values $$ h^1_0, h^2_0 $$.
+At the first timestep, the networks receives the first element of the sequence $$ x_1 $$, and processes it by:
 
 $$
-   \begin{align*}
-   \mathbf{z}_1 = & W_1\mathbf{x} \\
-   \mathbf{h}_1 = & \mathbf{ \sigma } (\mathbf{z}_1) \\
-   \mathbf{z}_2 = & W_2 \mathbf{h}_1 \\
-   \mathbf{y} = & \mathbf{ \sigma } (\mathbf{z}_2) \\
-   cost = & C(\mathbf{y})
-   \end{align*}
+    \begin{align*}
+    h^1_1 &= \sigma \left ( {}_Sw^1x_1 + {}_Tw^1h^1_0 \right ) \\
+    h^2_1 &= \sigma \left ( {}_Sw^2h^1_1 + {}_Tw^2h^2_0 \right ) \\
+    y_1 &= h^2_1.
+    \end{align*}
 $$
 
-Now, let me fill you in on some details: $$ W_1,W_2 $$ are matrices whose dimensions are $$ N_{this~layer} \times N_{previous~layer} $$, i.e.:$$ W_1 \in \mathbb{R}^{ N_1 \times N_{in} }, W_2 \in \mathbb{R}^{ N_2 \times N_1 }. $$
-The function $$ \mathbf{ \sigma} $$ transforms a vector into another vector with same dimensions $$ \mathbf{ \sigma}: \mathbb{R}^N \to \mathbb{R}^N $$ whereas $$C$$ transforms a vector into a scalar $$ C: \mathbb{R}^{N_2} \to \mathbb{R}$$.
-
-How do we rewrite the gradient descent formula for vectors?
-Easy, just look at it component-wise:
-
-$$ w_{1,ij} \leftarrow w_{1,ij} + \frac{dC}{dw_{1,ij}}. $$
-
-Now, evaluating the derivative requires some math-fu.
-We start by writing the feedforward relationship component-wise:
+At the next timestep, we have:
 
 $$
-   \begin{align*}
-   y_u & = \sigma( z_{2,u} ) \\
-       & = \sigma \left ( \sum\limits_m^{N_1} w_{2,um}h_{1,m} \right ) \\
-       & = \sigma \left ( \sum\limits_m^{N_1} w_{2,um} \sigma \left ( \sum\limits_{p}^{N_{in}} w_{1,mp}x_p \right ) \right )
-   \end{align*}
+    \begin{align*}
+    h^1_2 &= \sigma \left ( {}_Sw^1x_2 + {}_Tw^1h^1_1 \right ) \\
+    h^2_2 &= \sigma \left ( {}_Sw^2h^1_2 + {}_Tw^2h^2_1 \right ) \\
+    y_2 &= h^2_2,
+    \end{align*}
 $$
 
-so we can write:
+which by the magic of substitution is nothing other than
 
 $$
-   \begin{align*}
-   \frac{dC}{dw_{1,ij}} & = \sum\limits_u^{N_2} \frac{dC}{dy} \Bigg|_{y_u} \frac{dy_u}{dw_{1,ij}} \\
-                        & = \sum\limits_u^{N_2} \frac{dC}{dy} \Bigg|_{y_u} \frac{ d\sigma }{dz} \Bigg|_{z_{2,u}} \frac{d z_{2,u} }{dw_{1,ij}} \\
-                        & = \sum\limits_u^{N_2} \frac{dC}{dy} \Bigg|_{y_u} \frac{ d\sigma }{dz} \Bigg|_{z_{2,u}} \left [ \sum\limits_m^{N_1} w_{2,um} \frac{ d h_{1,m} }{dw_{1,ij}} \right ] \\
-                        & = \sum\limits_u^{N_2} \frac{dC}{dy} \Bigg|_{y_u} \frac{ d\sigma }{dz} \Bigg|_{z_{2,u}} \left [ \sum\limits_m^{N_1} w_{2,um} \frac{ d\sigma }{dz} \Bigg|_{ z_{1,m} }  \left ( \frac{d}{dw_{1,ij}} \sum\limits_{p}^{N_{in}} w_{1,mp}x_p \right ) \right ].
-   \end{align*}
+    \begin{align*}
+    h^1_2 &= \sigma \left ( {}_Sw^1x_2 + {}_Tw^1  \sigma \left ( {}_Sw^1x_1 + {}_Tw^1h^1_0  \right ) \right ) \\
+    h^2_2 &= \sigma \left ( {}_Sw^2\sigma h^1_2 + {}_Tw^2  \sigma \left ( {}_Sw^2h^1_1 + {}_Tw^2h^2_0 \right ) \right ) \\
+    y_2 &= h^2_2,
+    \end{align*}
 $$
 
-And now we simplify:
+where I have substituted the expressions of $$ h^1_1, h^2_1 $$.
+Note that I could have also substituted $$ h^1_2 $$, but I didn't because the process for backpropagating the error through the layers is not in the scope of this post.
+
+If we kept going for $$ N $$ timesteps, the formulas would look like this
 
 $$
-   \frac{d}{dw_{1,ij}} \sum\limits_{p}^{N_{in}} w_{1,mp}x_p = 
-   \begin{cases}
-   x_j & \text{if } m = i\\
-   0   &  \text{otherwise},
-   \end{cases}
+    \begin{align*}
+    h^1_N &= \sigma \left ( {}_Sw^1x_N + {}_Tw^1  \sigma \left ( {}_Sw^1x_{N-1} + {}_Tw^1 \sigma \left ( {}_Sw^1x_{N-2} + \dots {}_Tw^1 h^1_0  \right ) \right ) \right )\\
+    h^2_N &= \sigma \left ( {}_Sw^2h^1_N + {}_Tw^2  \sigma \left ( {}_Sw^2h^1_{N-1} + {}_Tw^2 \sigma \left ( {}_Sw^2h^1_{N-2} + \dots {}_Tw^2 h^2_0  \right ) \right ) \right )\\
+    y_N &= h^2_N,
+    \end{align*}
 $$
 
-and we are left with
+If you feel like this is too familiar for comfort, don't worry you don't suffer from [Fregoli delusion](https://en.wikipedia.org/wiki/Fregoli_delusion).
+The same exact recursive substitutions happen if we move thorugh layers and not through time.
+As a matter of fact, we almost already know how to backprop through time thanks to our knowledge of backprop through layers!
 
-$$ \frac{dC}{dw_{1,ij}} = \sum\limits_u^{N_2} \frac{dC}{dy} \Bigg|_{y_u} \frac{ d\sigma }{dz} \Bigg|_{z_{2,u}} w_{2,ui} \frac{ d\sigma }{dz} \Bigg|_{ z_{1,i} } x_j. $$
+#### Gradients galore
 
-Now we're gonna be fancy and write this back into matrix notation.
-We're going to use this rule
-
-$$ \sum\limits_u k_ua_{ui} \to \text{the } i^{th} \text{ component of } A^T\mathbf{k}, $$
-
-and introduce the outer product $$ \otimes $$ between $$ \mathbf{x} \in \mathbb{R}^{N_x} $$ and $$ \mathbf{y} \in \mathbb{R}^{N_y}$$ such that
-
-$$
-   \begin{align*}
-   & \mathbf{x} \otimes \mathbf{y} \in \mathbb{R}^{N_x \times N_y} \\
-   & \left [ \mathbf{x} \otimes \mathbf{y} \right ]_{ij} = x_iy_j,
-   \end{align*}
-$$
-
-and introduce also the simpler element-wise product $$ \left [ \mathbf{x} \odot \mathbf{y} \right ]_i = x_iy_i $$.
-
-We can finally say that $$ \frac{dC}{dw_{1,ij}} $$ will be the $$ (ij)^{th} $$ component of the matrix
-
-$$ \left [ W_2^T \left ( \nabla C \Bigg|_{\mathbf{y}} \odot \frac{ d \sigma }{dz} \Bigg|_{\mathbf{z}_{2}} \right ) \right ] \odot \frac{ d \sigma }{dz} \Bigg|_{\mathbf{z}_{1}} \otimes \mathbf{x}. $$
-
-By repeating the exact same computations, but simpler, we can get the expression for $$ \frac{dC}{dw_{2,ij}} $$ as the  $$ (ij)^{th} $$ component of the matrix
-
-$$ \left ( \nabla C \Bigg|_{\mathbf{y}} \odot \frac{ d \sigma }{dz} \Bigg|_{\mathbf{z}_{2}} \right ) \otimes \mathbf{h}_1. $$
-
-As a validation, you can check that the above formula is indeed an $$ (N_2 \times N_1) $$ matrix.
-
-#### The backprop insight
-
-This is where the magic happens! We can summarize our gradient descent formulas as
+Let's compute some derivatives.
+Suppose we have a cost function $$ C = C (y) $$ that we want to minimize.
+Question: _how does the recurrent weight of the last layer influence the cost function at time $$ N $$?_
 
 $$
-   \begin{align*}
-   W_2 \leftarrow & W_2 - \eta \left ( \nabla C \Bigg|_{\mathbf{y}} \odot \frac{ d \sigma }{dz} \Bigg|_{\mathbf{z}_{2}} \right ) \otimes \mathbf{h}_1 \\
-   W_1 \leftarrow & W_1 - \eta \left [ W_2^T \left ( \nabla C \Bigg|_{\mathbf{y}} \odot \frac{ d \sigma }{dz} \Bigg|_{\mathbf{z}_{2}} \right ) \right ] \odot \frac{ d \sigma }{    dz} \Bigg|_{\mathbf{z}_{1}} \otimes \mathbf{x}.
-   \end{align*}
+    \begin{align*}
+    \frac{dC(y_N)}{d{}_Tw^2} &= \frac{dC}{dy} \Big |_{y_N} \frac{ dy_N}{d{}_Tw^2} \\
+    &= \frac{dC}{dy} \Big |_{y_N} \frac{d\sigma}{dz} \Big |_{z^2_N} \frac{d z^2_N }{d{}_Tw^2},
+    \end{align*}
 $$
 
-As we noted before, one term is repeated in the two expressions, namely $$ \left ( \nabla C \Bigg|_{\mathbf{y}} \odot \frac{ d \sigma }{dz} \Bigg|_{\mathbf{z}_{2}} \right ) $$.
-Moreover, this repeated term can be computed using only knowledge from the cost function and layer 2.
-We can use this insight to define an *error signal* that gets backpropagated through the network.
+to compute the last term $$ \frac{d z^2_N }{d{}_Tw^2} $$ we have to calculate the derivative of the long expression
 
-We are left with the following **backprop algorithm**:
-1. compute the gradient of the cost function, evaluated on the activations of the last layer;
-2. set the *error signal*
-$$ \mathbf{ \delta } = \nabla C \Bigg|_{\mathbf{y}} $$
-3. for each layer $$ l $$ going backwards:
-  - update the weight matrix
-$$ W_l \leftarrow W_l - \eta \left ( \mathbf { \delta } \odot \frac{ d \sigma }{dz} \Bigg|_{\mathbf{z}_{l}} \right ) \otimes \mathbf{h}_{l-1}$$;
-  - backpropagate the error signal
-$$ \mathbf { \delta } = W_l^T \left ( \mathbf { \delta } \odot \frac{ d \sigma }{dz} \Bigg|_{\mathbf{z}_{l}} \right ) $$.
+$$  \frac{d \left [ {}_Sw^2h^1_N + {}_Tw^2  \sigma \left ( {}_Sw^2h^1_{N-1} + {}_Tw^2 \sigma \left ( {}_Sw^2h^1_{N-2} +     \dots {}_Tw^2 h^2_0  \right )\right )\right ]} {d{}_Tw^2}. $$
+
+Fortunately, $$ h^1_N $$ does *not* depend on $$ {}_Tw^2 $$, nor does $$ h^1_{N-1} $$ and so on.
+Therefore we can already simplify
+
+$$
+    \begin{align*}
+    &\frac{d \left [ {}_Sw^2h^1_N + {}_Tw^2  \sigma \left ( {}_Sw^2h^1_{N-1} + {}_Tw^2 \sigma \left ( {}_Sw^2h^1_{N-2} +     \dots {}_Tw^2 h^2_0  \right )\right )\right ]} {d{}_Tw^2} =\\
+    &\frac{d \left [ {}_Tw^2  \sigma \left ( {}_Sw^2h^1_{N-1} + {}_Tw^2 \sigma \left ( {}_Sw^2h^1_{N-2} + \dots {}_Tw^2 h^2_0  \right )\right )\right ]} {d{}_Tw^2}.
+    \end{align*}
+ $$
+
+The annoying bit here is that we are facing the derivative of a product: both $$  {}_Tw^2 $$ and $$ \sigma ( \dots ) $$ depend on $$ {}_Tw^2 $$!
+So we must write
+
+$$
+    \begin{align*}
+    &\frac{d \left [ {}_Tw^2  \sigma \left ( {}_Sw^2h^1_{N-1} + {}_Tw^2 \sigma \left ( {}_Sw^2h^1_{N-2} + \dots {}_Tw^2 h^2_0  \right )\right )\right ]} {d{}_Tw^2} = \\
+    & \sigma \left ( {}_Sw^2h^1_{N-1} + {}_Tw^2 \sigma \left ( {}_Sw^2h^1_{N-2} + \dots {}_Tw^2 h^2_0 \right )\right ) \\
+    & + {}_Tw^2 \frac{d \left [  \sigma \left ( {}_Sw^2h^1_{N-1} + {}_Tw^2 \sigma \left ( {}_Sw^2h^1_{N-2} + \dots {}_Tw^2 h^2_0 \right )\right )\right ]}{d{}_Tw^2}.
+    \end{align*}
+ $$
+
+The expression that remains under the derivative sign here is the same as before, only one timestep *in the past*.
+That's good news.
+We can recursively simplify the expression for the derivative into:
+
+$$
+    \begin{align*}
+    \frac{dC(y_N)}{d{}_Tw^2} &= \frac{dC}{dy} \Big |_{y_N} \frac{d\sigma}{dz} \Big |_{z^2_N} \\
+            & \Bigg ( \sigma \left ( {}_Sw^2h^1_{N-1} + {}_Tw^2 \sigma \left ( {}_Sw^2h^1_{N-2} + \dots {}_Tw^2 h^2_0 \right )\right ) \\
+            & + {}_Tw^2 \frac{d\sigma}{dz} \Big |_{z^2_{N-1}} \Big ( \sigma \left ( {}_Sw^2h^1_{N-2} + \dots {}_Tw^2 h^2_0 \right ) + \dots + \frac{d\sigma}{dz} \Big |_{z^2_{1}} h^2_0 \Big ) \Bigg ).
+    \end{align*}
+$$
+
+Writing the full expression for what's inside the calls to the $$ \sigma $$ function was useful to understand exactly who depends on what in order to compute the derivatives.
+To make the notation lighter, but also to gain insight on backprop, let's substitute back the directly the values of the hidden states.
+We obtain the **recursive formulation for the derivative**:
+
+$$
+    \frac{dC(y_N)}{d{}_Tw^2} = \frac{dC}{dy} \Big |_{y_N} \frac{d\sigma}{dz} \Big |_{z^2_N} \left ( h^2_N + {}_Tw^2 \frac{d\sigma}{dz} \Big |_{z^2_{N-1}} \left ( h^2_{N-1} + \dots +  \frac{d\sigma}{dz} \Big |_{z^2_{1}} h^2_0 \right ) \right ).
+$$
+
+The question now is, how does this extend to the upstream layers?
+We start off pretty easily:
+
+$$
+    \begin{align*}
+    \frac{dC(y_N)}{d{}_Tw^1} &= \frac{dC}{dy} \Big |_{y_N} \frac{ dy_N}{d{}_Tw^1} \\
+    &= \frac{dC}{dy} \Big |_{y_N} \frac{d\sigma}{dz} \Big |_{z^2_N} \frac{d z^2_N }{d{}_Tw^1},
+    \end{align*}
+$$
+
+and we have to now compute the annoying derivative
+
+$$ \frac{d z^2_N }{d{}_Tw^1} = \frac{ d \left [ {}_Sw^2h^1_N + {}_Tw^2  \sigma \left ( {}_Sw^2h^1_{N-1} + {}_Tw^2 \sigma \left ( {}_Sw^2h^1_{N-2} + \dots {}_Tw^2 h^2_0  \right ) \right ) \right ]}{d{}_Tw^1}. $$
+
+The caveat is that, in contrast to what happened above, many terms in this expression depend on $$ {}_Tw^1 $$, namely $$ h^1_N, h^1_{N-1}, h^1_{N-2}, \dots $$. We continue with our computations, trying not to make transcription mistakes:
 
 
-### Show me the code!
+$$
+    \begin{align*}
+    &\frac{ d \left [ {}_Sw^2h^1_N + {}_Tw^2  \sigma \left ( {}_Sw^2h^1_{N-1} + {}_Tw^2 \sigma \left ( {}_Sw^2h^1_{N-2} + \dots {}_Tw^2 h^2_0  \right ) \right ) \right ]}{d{}_Tw^1} \\
+    &= {}_Sw^2 \frac{d h^1_N }{d{}_Tw^1} + {}_Tw^2 \frac{ d \left [ \sigma \left ( {}_Sw^2h^1_{N-1} + {}_Tw^2 \sigma \left ( {}_Sw^2h^1_{N-2} + \dots {}_Tw^2 h^2_0  \right ) \right ) \right ]}{d{}_Tw^1}
+    \end{align*}
+$$
+
+As before, we have a nice recursive property: the expression that remains under the second derivative sign is simply the same as the one we wanted to compute, but _one timestep in the past_.
+Before we move on to the fully recursive formulation, we need an expression for $$ \frac{d h^1_N }{d{}_Tw^1} $$.
+As before, $$ {}_Sw^1x_N $$ doesn't depend on $$ {}_Tw^1 $$, and for the second term we have to compute the derivative of a product:
+
+$$
+    \begin{align*}
+    \frac{d h^1_N }{d{}_Tw^1} &= \frac{d \left [ \sigma \left ( {}_Sw^1x_N + {}_Tw^1  \sigma \left ( {}_Sw^1x_{N-1} + {}_Tw^1 \sigma \left ( {}_Sw^1x_{N-2} + \dots {}_Tw^1 h^1_0  \right ) \right ) \right ) \right ]}{d{}_Tw^1} \\
+    &= \frac{d\sigma}{dz} \Big |_{z^1_N} \left ( \sigma \left ( {}_Sw^1x_{N-1} + {}_Tw^1 \sigma \left ( {}_Sw^1x_{N-2} + \dots {}_Tw^1 h^1_0  \right ) \right ) + {}_Tw^1 \frac{d \left [ \sigma \left ( {}_Sw^1x_{N-1} + {}_Tw^1 \sigma \left ( {}_Sw^1x_{N-2} + \dots {}_Tw^1 h^1_0  \right ) \right ) \right ]}{d{}_Tw^1} \right ) .
+    \end{align*}
+$$
+
+And getting the **recursive formulation of the derivative**:
+
+$$
+    \begin{align*}
+    \frac{dC(y_N)}{d{}_Tw^1} &= \frac{dC}{dy} \Big |_{y_N} \frac{d\sigma}{dz} \Big |_{z^2_N} \left \{ {}_Sw^2 \frac{d\sigma}{dz} \Big |_{z^1_N} \left ( h^1_{N-1} + {}_Tw^1 \frac{d h^1_{N-1} }{d{}_Tw^1} \right ) + {}_Tw^2 \frac{ d h^2_{N-1} }{d{}_Tw^1} \right \} \\
+    &=  \frac{dC}{dy} \Big |_{y_N} \frac{d\sigma}{dz} \Big |_{z^2_N} \Bigg \{ {}_Sw^2 \frac{d\sigma}{dz} \Big |_{z^1_N} \left ( h^1_{N-1} + {}_Tw^1 \frac{d\sigma}{dz} \Big |_{z^1_{N-1}} \left ( h^1_{N-2} + {}_Tw^1 \frac{d\sigma}{dz} \Big |_{z^1_{N-2}} \left ( h^1_{N-3} + \dots \right ) \right ) \right ) \\
+    & + {}_Tw^2  \frac{d\sigma}{dz} \Big |_{z^2_{N-1}} \Bigg [ {}_Sw^2 \frac{d\sigma}{dz} \Big |_{z^1_{N-1}} \left ( h^1_{N-2} + {}_Tw^1 \frac{d\sigma}{dz} \Big |_{z^1_{N-2}} \left ( h^1_{N-3} + {}_Tw^1 \frac{d\sigma}{dz} \Big |_{z^1_{N-3}} \left ( h^1_{N-4} + \dots \right ) \right ) \right ) \\
+    & + {}_Tw^2  \frac{d\sigma}{dz} \Big |_{z^2_{N-2}} \left (  \dots + {}_Tw^1 \frac{d\sigma}{dz} \Big |_{z^1_{1}} h^1_0 \right ) \dots \Bigg] \Bigg \}.
+    \end{align*}
+$$
+
+That's a pretty ugly-looking expression.
+Lets's try to group together terms by factors of $$ h^1_{*} $$:
+
+$$
+    \begin{align*}
+    \frac{dC(y_N)}{d{}_Tw^1} &= \frac{dC}{dy} \Big |_{y_N} \Bigg \{ \\
+    & \frac{d\sigma}{dz} \Big |_{z^2_N} {}_Sw^2 \frac{d\sigma}{dz} \Big |_{z^1_N} h^1_{N-1}\\
+    & + \left (\frac{d\sigma}{dz} \Big |_{z^2_N} {}_Sw^2 \frac{d\sigma}{dz} \Big |_{z^1_N} {}_Tw^1 \frac{d\sigma}{dz} \Big |_{z^1_{N-1}} + \frac{d\sigma}{dz} \Big |_{z^2_N} {}_Tw^2  \frac{d\sigma}{dz} \Big |_{z^2_{N-1}} {}_Sw^2 \frac{d\sigma}{dz} \Big |_{z^1_{N-1}} \right ) h^1_{N-2} \\
+    & + \left (\frac{d\sigma}{dz} \Big |_{z^2_N} {}_Sw^2 \frac{d\sigma}{dz} \Big |_{z^1_N} {}_Tw^1 \frac{d\sigma}{dz} \Big |_{z^1_{N-1}} {}_Tw^1 \frac{d\sigma}{dz} \Big |_{z^1_{N-2}} + \frac{d\sigma}{dz} \Big |_{z^2_N} {}_Tw^2  \frac{d\sigma }{dz} \Big |_{z^2_{N-1}} {}_Sw^2 \frac{d\sigma}{dz} \Big |_{z^1_{N-1}} {}_Tw^1 \frac{d\sigma}{d z} \Big |_{z^1_{N-2}} +\frac{d\sigma}{dz} \Big |_{z^2_N} {}_Tw^2  \frac{d\sigma}{dz} \Big |_{z^2_{N-2}} {}_Sw^2 \frac{d\sigma}{dz} \Big |_{z^1_{N-2}} \right ) h^1_{N-3} \\
+    & + \dots  \Bigg \}.
+    \end{align*}
+$$
+
+The nice thing about rearranging the terms in this way is that you get a visual idea of the error terms *trickling back* through layers and through time.
+For example, look at the line that ends with $$ h^1_{N-1} $$: it already contains the seed for the following line's term $$ \frac{d\sigma}{dz} \Big |_{z^2_N} {}_Sw^2 \frac{d\sigma}{dz} \Big |_{z^1_N} {}_Tw^1 $$.
+This is the essence of backpropagation, where we can compute the errors at time $$ N-1$$ and backpropagate an error signal to compute the error at time $$ N-2 $$.
+In the end, the total error will be the sum of the errors at each instant.
+
+A similar derivation can and should be done for $$ \frac{dC(y_N)}{d{}_Sw^2}, \frac{dC(y_N)}{d{}_Sw^1} $$ but I don't have the time or space to do it here.
+Instead, let me go straight to the vector notation and a wonderful visualization!
+
+## Vector notation
+
+Imagine now that instead of a single neuron per layer, we had multiple neurons.
+
+![recurrent-3D]({{ site.url }}/assets/recurrent-layers.svg)
+
+Doing the [same tricks](../07/naive-backprop.html) as for a feedforward network, we can write the backprop algorithm in vector notation:
+
+$$
+\begin{align*}
+&\text{ backwards for each layer } l = L, \dots, 1 \\
+&\text{ backwards in time } n = N, \dots, 1 \\
+&\delta = {}_T\delta^l_{n+1} + {}_S\delta^{l+1}_n \\
+&\Delta {}_SW^l = \Delta {}_SW^l + \left [ \delta \odot \frac{d\sigma}{dz} \Bigg |_{\mathbf{z}^l_n} \right ] \otimes \mathbf{h}^{l-1}_n \\
+&\Delta {}_TW^l = \Delta {}_TW^l + \left [ \delta \odot \frac{d\sigma}{dz} \Bigg |_{\mathbf{z}^l_n} \right ] \otimes \mathbf{h}^{l}_{n-1} \\
+&{}_S\delta^l_n = ({}_SW^l)^T \left [ \delta \odot \frac{d\sigma}{dz} \Bigg |_{\mathbf{z}^l_n} \right ] \\
+&{}_T\delta^l_n = ({}_TW^l)^T \left [ \delta \odot \frac{d\sigma}{dz} \Bigg |_{\mathbf{z}^l_n} \right ] .
+\end{align*}
+$$
+
+It can be easy to visualize it all in sort of grid, with layers (space) on one axis and time on the other.
+
+![recurrent-backprop]({{ site.url }}/assets/recurrent.svg)
+
+To formulas in the image may not reflect with 100% accuracy the notation of the text.
+Please refer to the text as the more up-to-date (and thus, hopefully, correct) version.
+
+### TBTTP: Truncated Backpropagation Through Time
+
+it may not be desirable to go back until the dawn of time for every backpropagation step.
+So, a simple but effective technique is used which consists in *truncating* the backward step in time after a given amount of steps $$ \tau_{max} $$.
+
+Another technique often coupled with this one is to avoid performing backprop through time at every time step, but only do it every $$ \tau_b $$ steps.
+
+## Show me the code!
 
 A simple implementation that pretty much follows the notation from this blog post is [here](https://github.com/sharkovsky/sharkovsky.github.io/blob/master/code/FullyConnected-py3.ipynb).
-
-
-
-
-
-
-
+In particular, the code implements a many-to-one architecture where the network ingests a full sequence and produces a single number as output.
+As such, it only performs BPTT at *the end* of the sequence, instead of at every time step or every $$ \tau_b $$ steps as descrbied above.
