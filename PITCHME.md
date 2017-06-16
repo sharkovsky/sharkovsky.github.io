@@ -36,7 +36,7 @@ Requires:
 
 #### multi layer perceptron
 
-<img src="assets/example_network.svg" width="500" style="background-color:white;"/>
+<img src="assets/example_network.png" width="500" style="background-color:white;"/>
 <img src="assets/activ.jpg" width="200"/>
 
 ---
@@ -89,7 +89,7 @@ Clearly, NN involve **a lot** of matrix vector operations. That's what makes the
 
 $$ W_i \leftarrow W_i + \alpha \frac{dC}{dW_i} $$
 
-<img src="assets/backprop.svg" width="600" style="background-color:white;"/>
+<img src="assets/backprop.png" width="600" style="background-color:white;"/>
 
 ---
 ## Backprop
@@ -198,12 +198,13 @@ Deep Learning $\neq$ Machine Learning
 
 
 
+---
 
-
+##  Thank you for your attention
 
 ---
 
-# BACKUP
+# more details
 
 ---
 
@@ -324,10 +325,6 @@ $$ W_i \leftarrow W_i + \alpha \frac{dC}{dW_i} $$
 
 ---
 
-<img src="assets/wtf.jpg" width="600" />
-
----
-
 ## Demystification
 
 **Rebranding** old techniques!
@@ -343,32 +340,3 @@ Simple neural networks are **nothing more** than plain-old regression techniques
 ## So why all the hype?
 
 ![New Generalization Possibilities](assets/yoda.jpg)
-
----
-
-### Hidden layers
-
-![hidden](assets/hidden.png)
-
-
-<img src="assets/hidden2.png" style="background-color:white;" />
-
-
----
-### convolutional layers
-
-<img src="assets/conv.png" width="700" />
-
----
-
-![conv](assets/conv-viz.png)
-
-
----
-### Don't forget
-
-Every operation is either:
-
-- $\mathbf{z} = W\mathbf{x}$ : matrix-vector multiplication
-- $\mathbf{o} = \mathbf{f}(\mathbf{z})$ : applying an elementwise nonlinear function to a vector
-
