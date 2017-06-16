@@ -12,7 +12,7 @@ June 2017
 
 ---
 
-![Image](assets/venn.jpg)
+![Image](./assets/md/assets/venn.jpg)
 
 ---
 
@@ -36,8 +36,8 @@ Requires:
 
 #### multi layer perceptron
 
-<img src="assets/example_network.png" width="500" style="background-color:white;"/>
-<img src="assets/activ.jpg" width="200"/>
+<img src="./assets/md/assets/example_network.png" width="500" style="background-color:white;"/>
+<img src="./assets/md/assets/activ.jpg" width="200"/>
 
 ---
 
@@ -89,16 +89,16 @@ Clearly, NN involve **a lot** of matrix vector operations. That's what makes the
 
 $$ W_i \leftarrow W_i + \alpha \frac{dC}{dW_i} $$
 
-<img src="assets/backprop.png" width="600" style="background-color:white;"/>
+<img src="./assets/md/assets/backprop.png" width="600" style="background-color:white;"/>
 
 ---
 ## Backprop
 
 or, rebranding the **chain rule**!
 
-<img src="assets/prof.jpg" width="350"/>
+<img src="./assets/md/assets/prof.jpg" width="350"/>
 
-My [fantastic](https://sharkovsky.github.io/2017/06/07/naive-backprop.html) blog post.
+My <a target="_blank" href="https://sharkovsky.github.io/2017/06/07/naive-backprop.html">fantastic</a> blog post.
 
 ---
 
@@ -127,7 +127,7 @@ Again, the only operations used:
 
 ### Partial Summary
 
-<img src="assets/heraclitus.jpg" width=100 />
+<img src="./assets/md/assets/heraclitus.jpg" width=100 />
 
 > Neural Networks are nothing more than matrix vector multiplications.
 
@@ -143,29 +143,45 @@ Again, the only operations used:
 
 ## Recurrent Neural Networks
 
-shameless [self-publicity](https://sharkovsky.github.io/2017/06/12/naive-recurrent.html).
+shameless <a target="_blank" href="https://sharkovsky.github.io/2017/06/12/naive-recurrent.html">self-publicity</a>.
 
 ---
 
 ## Convolutional Neural Networks
 
-<img src="assets/conv.png" width="700" />
+<img src="./assets/md/assets/conv.png" width="700" />
 
 ---
 
-![conv](assets/conv2.png)
+![Image](./assets/md/assets/conv2.png)
 
 ---
 
-![conv](assets/conv-viz.png)
+![Image](./assets/md/assets/conv-viz.png)
 
 ---
 
 ## Reservoir Computing
 
-![reservoir](assets/reservoir.png)
+![Image](./assets/md/assets/reservoir.png)
 
-See H. Jeger's MIND Institute [slides](http://minds.jacobs-university.de/sites/default/files/uploads/teaching/MLSpring16/ReservoirComputing.pdf) and [write-up](http://minds.jacobs-university.de/sites/default/files/uploads/papers/ESNTutorialRev.pdf)
+See H. Jeger's MIND Institute <a target="_blank" href="http://minds.jacobs-university.de/sites/default/files/uploads/teaching/MLSpring16/ReservoirComputing.pdf">slides</a> and <a target="_blank" href="http://minds.jacobs-university.de/sites/default/files/uploads/papers/ESNTutorialRev.pdf">write-up</a>
+
+---
+
+# NN Libraries
+
+![frameworks](./assets/md/assets/algorithmia.png)
+
+
+---
+
+# NN Libraries
+
+Reviews on:
+- the [algorithmia slides](http://blog.algorithmia.com/deploying-deep-learning-cloud-services/);
+- this [github](https://github.com/zer0n/deepframeworks/blob/master/README.md) repo;
+- this [paper](https://arxiv.org/pdf/1608.07249.pdf).
 
 ---
 
@@ -212,7 +228,7 @@ Deep Learning $\neq$ Machine Learning
 
 > Regression: predict y = f(x) when you don't know f, but you have a lot of (x,y) measurements.
 
-![Image](assets/regression.jpg)
+![Image](./assets/md/assets/regression.jpg)
 
 ---
 
@@ -331,7 +347,7 @@ $$ W_i \leftarrow W_i + \alpha \frac{dC}{dW_i} $$
 
 Sigmoid Activation and Cross-Entropy cost come from **Generalized Linear Models (GLM)**.
 
-<img src="assets/prof.jpg" width="350"/>
+<img src="./assets/md/assets/prof.jpg" width="350"/>
 
 Simple neural networks are **nothing more** than plain-old regression techniques.
 
@@ -339,4 +355,4 @@ Simple neural networks are **nothing more** than plain-old regression techniques
 
 ## So why all the hype?
 
-![New Generalization Possibilities](assets/yoda.jpg)
+![Image](./assets/md/assets/yoda.jpg)
