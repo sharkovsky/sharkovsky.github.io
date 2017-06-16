@@ -12,7 +12,7 @@ June 2017
 
 ---
 
-![Image](./assets/md/assets/venn.jpg)
+![Image](assets/venn.jpg)
 
 ---
 
@@ -36,8 +36,8 @@ Requires:
 
 #### multi layer perceptron
 
-<img src="./assets/md/assets/example_network.svg" width="500" style="background-color:white;"/>
-<img src="./assets/md/assets/activ.jpg" width="200"/>
+<img src="assets/example_network.svg" width="500" style="background-color:white;"/>
+<img src="assets/activ.jpg" width="200"/>
 
 ---
 
@@ -89,14 +89,14 @@ Clearly, NN involve **a lot** of matrix vector operations. That's what makes the
 
 $$ W_i \leftarrow W_i + \alpha \frac{dC}{dW_i} $$
 
-<img src="./assets/md/assets/backprop.svg" width="600" style="background-color:white;"/>
+<img src="assets/backprop.svg" width="600" style="background-color:white;"/>
 
 ---
 ## Backprop
 
 or, rebranding the **chain rule**!
 
-<img src="./assets/md/assets/prof.jpg" width="350"/>
+<img src="assets/prof.jpg" width="350"/>
 
 My [fantastic](https://sharkovsky.github.io/2017/06/07/naive-backprop.html) blog post.
 
@@ -127,7 +127,7 @@ Again, the only operations used:
 
 ### Partial Summary
 
-<img src="./assets/md/assets/heraclitus.jpg" width=100 />
+<img src="assets/heraclitus.jpg" width=100 />
 
 > Neural Networks are nothing more than matrix vector multiplications.
 
@@ -149,21 +149,21 @@ shameless [self-publicity](https://sharkovsky.github.io/2017/06/12/naive-recurre
 
 ## Convolutional Neural Networks
 
-<img src="./assets/md/assets/conv.png" width="700" />
+<img src="assets/conv.png" width="700" />
 
 ---
 
-![conv](./assets/md/assets/conv2.png)
+![conv](assets/conv2.png)
 
 ---
 
-![conv](./assets/md/assets/conv-viz.png)
+![conv](assets/conv-viz.png)
 
 ---
 
 ## Reservoir Computing
 
-![reservoir](./assets/md/assets/reservoir.png)
+![reservoir](assets/reservoir.png)
 
 See H. Jeger's MIND Institute [slides](http://minds.jacobs-university.de/sites/default/files/uploads/teaching/MLSpring16/ReservoirComputing.pdf) and [write-up](http://minds.jacobs-university.de/sites/default/files/uploads/papers/ESNTutorialRev.pdf)
 
@@ -211,7 +211,7 @@ Deep Learning $\neq$ Machine Learning
 
 > Regression: predict y = f(x) when you don't know f, but you have a lot of (x,y) measurements.
 
-![Image](./assets/md/assets/regression.jpg)
+![Image](assets/regression.jpg)
 
 ---
 
@@ -324,7 +324,7 @@ $$ W_i \leftarrow W_i + \alpha \frac{dC}{dW_i} $$
 
 ---
 
-<img src="./assets/md/assets/wtf.jpg" width="600" />
+<img src="assets/wtf.jpg" width="600" />
 
 ---
 
@@ -334,7 +334,7 @@ $$ W_i \leftarrow W_i + \alpha \frac{dC}{dW_i} $$
 
 Sigmoid Activation and Cross-Entropy cost come from **Generalized Linear Models (GLM)**.
 
-<img src="./assets/md/assets/prof.jpg" width="350"/>
+<img src="assets/prof.jpg" width="350"/>
 
 Simple neural networks are **nothing more** than plain-old regression techniques.
 
@@ -342,26 +342,26 @@ Simple neural networks are **nothing more** than plain-old regression techniques
 
 ## So why all the hype?
 
-![New Generalization Possibilities](./assets/md/assets/yoda.jpg)
+![New Generalization Possibilities](assets/yoda.jpg)
 
 ---
 
 ### Hidden layers
 
-![hidden](./assets/md/assets/hidden.png)
+![hidden](assets/hidden.png)
 
 
-<img src="./assets/md/assets/hidden2.png" style="background-color:white;" />
+<img src="assets/hidden2.png" style="background-color:white;" />
 
 
 ---
 ### convolutional layers
 
-<img src="./assets/md/assets/conv.png" width="700" />
+<img src="assets/conv.png" width="700" />
 
 ---
 
-![conv](./assets/md/assets/conv-viz.png)
+![conv](assets/conv-viz.png)
 
 
 ---
