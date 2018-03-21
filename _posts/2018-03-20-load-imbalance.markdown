@@ -52,10 +52,15 @@ The numerical experiments yield counts that are very similar to those obtained d
 
 ![validation]({{ site.url }}/assets/load_imbalance_valid.png)
 
-Note that for $$\mu > 20$$ results start being incorrect.
-I suspect this may be due to roundoff errors.
+I have observed for $$\mu > 20$$ results start being incorrect.
+~~I suspect this may be due to roundoff errors.~~
+This is due to the fact that I approximated the range of values for the sum in the definition of the pmf of $$\Lambda$$.
+In the new version of the code I have called this variable `range_for_convolution` and set it to a much larger value.
+With a value of `range_for_convolution=200.`, results appear correct at least for $$\mu \leq 100$$.
+Obviously, this results in a much more computationally expensive process.
+In the future, it would be interesting to explore better ways of fixing this problem.
 
-The code for generating this image is provided at [code](https://github.com/sharkovsky/sharkovsky.github.io/blob/master/code/LoadBal.ipynb)
+The code for generating this image is provided [here](https://github.com/sharkovsky/sharkovsky.github.io/blob/master/code/LoadBal.ipynb).
 
 ## Problem Definition
 
