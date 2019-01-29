@@ -4,15 +4,15 @@ title: About
 permalink: /about/
 ---
 
-This is the base Jekyll theme. You can find out more info about customizing your Jekyll theme, as well as basic Jekyll usage documentation at [jekyllrb.com](https://jekyllrb.com/)
+I like to consider myself an eclectic scientist, skeptic and critical thinker.
+Currently my main interests are programming, data science and biological neural
+networks.
 
-You can find the source code for Minima at GitHub:
-[jekyll][jekyll-organization] /
-[minima](https://github.com/jekyll/minima)
+I am currently pursuing a PhD at EPFL, focusing on the computational complexity
+and runtime performance of simulations of biological neural networks.  I am
+using analytical performance models of software and hardware to explain the
+relationship between computer architectures and simulations of the brain.
 
-You can find the source code for Jekyll at GitHub:
-[jekyll][jekyll-organization] /
-[jekyll](https://github.com/jekyll/jekyll)
+When I'm not yelling at my computer screen, I'm either taking travel photos,
+playing basketball or bullying my fingers into playing the guitar.
 
-
-[jekyll-organization]: https://github.com/jekyll
