@@ -16,10 +16,11 @@
 title: Francesco Cremonesi's Blog
 email: francesco.cremonesi0@gmail.com
 description: > # this means to ignore newlines until "baseurl:"
-    I am a computational neuroscientist, interested in both artificial
-    and biological neural networks. My research is currently focused
+    I am a PhD student in computational neuroscience and high
+    performance computing. My research is currently focused
     on the computational and algorithmic aspects related to simulating
-    neural networks. When I'm not yelling at my computer screen, I'm
+    neural networks. I am interested in machine learning and software
+    development. When I'm not yelling at my computer screen, I'm
     either taking travel photos, playing basketball or bullying my
     fingers into playing the guitar.
 baseurl: "" # the subpath of your site, e.g. /blog
