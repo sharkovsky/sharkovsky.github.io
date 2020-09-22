@@ -1,22 +1,15 @@
 ---
 layout: post
-title:  "Storing large datasets for training on Colab"
+title:  "Reading large datasets for training on Colab"
 date:   2020-09-18 16:13:00 +0200
 ---
 
 ## Large datasets on Colab
 
-This post analyzes three approaches to dealing with large datasets within the Goole Colab ecosystem.
-It is based on the scenario where one wishes to train a machine learning model on Colab with a medium to large size dataset (upwards of 1 GB).
-It provides two main contributions: in the first part we show how to implement each approach with code, while in the second part we analyze the related performance and costs.
-
-
-### The problem
-
 Google Colab provides a fantastic way for anyone to access a powerful GPU runtime on the cloud, especially tailored for exploring and training machine learning models.
 However, the issue still remains of making sure the training data that you need is available to your models within a reasonable latency.
 For small datasets, a common approach is to simply store your data on your local computer, and upload it to the Colab runtime everytime via the internet.
-This approach is not feasible when datasets become large: in my experience, it can take up to 6 hours to upload a <2 GB dataset to the Colab environment.
+This approach is not feasible when datasets become large: in our experience, it can take up to 6 hours to upload a <2 GB dataset to the Colab environment.
 
 We need a faster way to access our training data, possibly by storing it already on the cloud to exploit better bandwidth.
 We consider three approaches:
@@ -24,7 +17,7 @@ We consider three approaches:
 2. *GCSFuse*: using Google Cloud Storage Buckets, and mounting them with gcsfuse;
 3. *GCS Manual*: using Google Cloud Storage Buckets, and transferring the data with the storage api.
 
-### Main results
+## Main results
 
 The results of this investigation can be summarized as follows:
 
@@ -98,7 +91,7 @@ As expected, we also confirm that runtime type does not affect first read bandwi
 
 This confirms our understanding that the performance of reading files for the first time is bounded by the time required to transfer the file contents over the internet.
 
-## Storing and reading your data from the cloud
+## Implementation guide: storing and reading your data from the cloud
 
 This section presents the code and some technical details for implementation.
 
@@ -109,12 +102,11 @@ Then, the code to mount your drive in the Colab runtime is relatively simple.
 ```python
 from google.colab import drive
 drive.mount('/content/gdrive')
-    Mounted at /content/gdrive
 ```
 Note that calling `drive.mount` will prompt you for an authorization code, for which you manually need to click on a link.
 After authentication and successful mounting, you are able to access all the files on your Google Drive from the Colab runtime.
 ```python
-images = os.listdir('/content/gdrive/My Drive/ML_data/snakes/valid/venomous')
+images = os.listdir('/content/gdrive/path/to/training/data')
 with open(path, 'r') as f:
   content = f.readlines()
 ```
@@ -196,4 +188,34 @@ The former can be found out through the Google Cloud Console, while the latter c
 import requests
 ipinfo = requests.get('http://ipinfo.io')
 region = ipinfo.json()['country'] + ': ' + ipinfo.json()['region']
+```
+
+## Code
+
+The code for the benchmarks can be found [here](https://github.com/sharkovsky/sharkovsky.github.io/blob/master/code/IO_bench.ipynb), while the analysis code is [here](https://github.com/sharkovsky/sharkovsky.github.io/blob/master/code/IO_bench_analysis.ipynb).
+
+We used python's line profiler `%lprun` to extract timings for single lines of code.
+For GDrive and GCSFuse, the read benchmark looks like this:
+```python
+N=50
+images = os.listdir('/content/gdrive/path/to/data')
+for i in range(N):
+  filename = images[i]
+  path = '/content/gdrive/My Drive/ML_data/snakes/valid/venomous/' + filename
+  with open(path, 'rb') as f:
+    f.seek(0,2)
+    length_of_file = f.tell()
+    f.seek(0,0)
+    content = f.read(length_of_file)
+```
+While for GCS Manual, it looks like this:
+```python
+N=50
+i=0
+for b in client.list_blobs('gcs_bucket_name'):
+  i += 1
+  if i >=N:
+    break
+  filepath = '/content/gcs-api/'+ '/'.join(b.name.split('/')[-4:])
+  b.download_to_filename(filepath)
 ```
