@@ -1,4 +1,4 @@
-e--
+---
 layout: post
 title:  "Reading large datasets for training on Colab"
 date:   2020-09-18 16:13:00 +0200
