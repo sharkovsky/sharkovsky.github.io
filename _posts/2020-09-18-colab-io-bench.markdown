@@ -1,4 +1,4 @@
----
+e--
 layout: post
 title:  "Reading large datasets for training on Colab"
 date:   2020-09-18 16:13:00 +0200
@@ -45,6 +45,11 @@ Retransferring the data everytime you want to re-read a file would be costly, so
 This is what's implicitly happening in the third approach, which works well because you already know that those files have not been changed on the remote server.
 In the first and second approach you are instead relying on the library's implementations to handle this cache optimization for you.
 
+To measure the performance of reading files, we use read bandwidth in Megabytes per second.
+In practice, we measure the amount of MB read and the time it took to read them separately, and plot their ratio.
+We caution against taking these numbers as an absolute indication of real-world performance, although they are valid to have a ballpark idea.
+The reason is that other operations, such as opening the file, can contribute significant overhead (especially for small files).
+
 ### Gcsfuse does not provide optimal re-read performance
 
 We measured the speed of re-reading files for the three approaches described above.
@@ -58,17 +63,8 @@ During the first read, all bandwidths are the same.
 The first read is likely bounded by the speed of transferring the file contents from their cloud locations over the internet.
 The second read is more than 1000x faster for GDrive and the Manual approach, while for GCSFuse the speed remains roughly the same.
 
-#### Details
-
-The _read bandwidth_ was defined as the total MegaBytes read, divided by the execution time of the `file.read` function in seconds.
-In the case of the manual approach, we measured instead the time of the `bucket.download_to_filename` function.
-Technically this doesn't include reading the file, but once it has been downloaded the file contents can be considered to be in memory, and reading them right away would happen at lightining speed compared to the cost of transferring them from the remote servers.
-
 In this benchmark, we did our best to ensure that file contents were not kept in memory between the first and second reads, to simulate the case where one would loop over the whole dataset for each epoch, effectively clearing the memory.
-
-Note that it is unlikely that one would be able to sustain such bandwidth in a real-world scenario, mainly because these measurements do not include overhead such as opening the file.
 It remains unclear why the second-read bandwidth of the GDrive approach is worse than the manual approach, but it might be possible that GDrive is performing some checks or contacting the remote server.
-
 
 ## Geographic region affects performance
 
@@ -208,7 +204,9 @@ for i in range(N):
     f.seek(0,0)
     content = f.read(length_of_file)
 ```
-While for GCS Manual, it looks like this:
+To obtain the read bandwidth, we divided the total size of the files in MB by the sum of all the timings for the `f.read` function call, as measured by `lprun`.
+
+For GCS Manual, the benchmark looks like this:
 ```python
 N=50
 i=0
@@ -219,3 +217,7 @@ for b in client.list_blobs('gcs_bucket_name'):
   filepath = '/content/gcs-api/'+ '/'.join(b.name.split('/')[-4:])
   b.download_to_filename(filepath)
 ```
+
+Here we measured instead the time of the `b.download_to_filename` function.
+Technically this doesn't include reading the file, but once it has been downloaded the file contents can be considered to be in memory, and reading them right away would happen at lightining speed compared to the cost of transferring them from the remote servers.
+
